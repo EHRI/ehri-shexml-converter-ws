@@ -44,7 +44,14 @@ class ShExMLConverterController @Inject()(val controllerComponents: ControllerCo
 
   private def handleMapping(mappingRules: String, format: String): Result = {
     Try(new MappingLauncher().launchMapping(mappingRules, format)) match {
-      case Success(result) => Ok(result)
+      case Success(result) => {
+        val contentType = {
+          if(format.toLowerCase.contains("xml")) XML
+          else if(format.toLowerCase.contains("json")) JSON
+          else TEXT
+        }
+        Ok(result).as(contentType)
+      }
       case Failure(exception) => {
         logger.error("Error while translating to RDF ", exception)
         InternalServerError("Something went wrong!")
