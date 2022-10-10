@@ -8,22 +8,38 @@ import javax.inject._
 import play.api.mvc._
 
 import java.net.URL
-import scala.io.Source
+import scala.io.{BufferedSource, Source}
 import scala.util.{Failure, Success, Try}
 
 @Singleton
 class ShExMLConverterController @Inject()(val controllerComponents: ControllerComponents, config: Config) extends BaseController with Logging {
 
+  def convert() = Action { implicit request: Request[AnyContent] =>
+    val source = request.getQueryString("dataURL")
+    val mappingRules = request.getQueryString("mappingURL")
+    mappingRules.flatMap(m => source.map(s => {
+      val rules = getMappingRulesFromURL(m)
+      val finalMappingRules = rules.replaceFirst("SOURCE src <placeholder>", s"SOURCE src <$s>")
+      handleAnswerWithContentNegotiation(finalMappingRules)
+    })) match {
+      case Some(r) => r
+      case None => {
+        logger.error(s"Error due to missing arguments on request with dataURL=$source and mappingURL=$mappingRules")
+        BadRequest("Unrecognized combination of parameters")
+      }
+    }
+  }
+
   def convertRepository(id: String) = Action { implicit request: Request[AnyContent] =>
     logger.info("Requested repository conversion of " + id)
-    val rules = getMappingRules("./conf/mappingRules/institutions.shexml")
+    val rules = getMappingRulesFromFile("./conf/mappingRules/institutions.shexml")
     val finalMappingRules = getFinalMappingRules("repository", rules, id)
     handleAnswerWithContentNegotiation(finalMappingRules)
   }
 
   def convertUnit(id: String) = Action { implicit request: Request[AnyContent] =>
     logger.info("Requested unit conversion of " + id)
-    val rules = getMappingRules("./conf/mappingRules/units.shexml")
+    val rules = getMappingRulesFromFile("./conf/mappingRules/units.shexml")
     val finalMappingRules = getFinalMappingRules("unit", rules, id)
     handleAnswerWithContentNegotiation(finalMappingRules)
   }
@@ -60,7 +76,7 @@ class ShExMLConverterController @Inject()(val controllerComponents: ControllerCo
   }
 
   private def getFinalMappingRules(theType: String, rules: String, id: String): String = {
-    val portalURL = new URL(config.getString("ehri.shexml.converter.portal.url")) // needs to be parametrised
+    val portalURL = new URL(config.getString("ehri.shexml.converter.portal.url"))
     val apiSource = if(theType.toLowerCase == "repository")
         s"SOURCE repositories <${portalURL.getProtocol}://${portalURL.getHost}:${portalURL.getPort}/api/v1/$id>"
       else s"SOURCE holdings <${portalURL.getProtocol}://${portalURL.getHost}:${portalURL.getPort}/api/v1/$id>"
@@ -70,8 +86,11 @@ class ShExMLConverterController @Inject()(val controllerComponents: ControllerCo
       .replaceFirst("SOURCE terms <placeholder>", termsSource)
   }
 
-  private def getMappingRules(path: String): String = {
-    val file = Source.fromFile(path)
-    try { file.iterator.mkString } finally { file.close() }
+  private def getMappingRulesFromFile(path: String): String = getMappingRulesWithClosing(Source.fromFile(path))
+
+  private def getMappingRulesFromURL(url: String): String = getMappingRulesWithClosing(Source.fromURL(url))
+
+  private def getMappingRulesWithClosing(bufferedSource: BufferedSource): String = {
+    try { bufferedSource.iterator.mkString } finally { bufferedSource.close() }
   }
 }
