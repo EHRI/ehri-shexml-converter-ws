@@ -32,14 +32,14 @@ class ShExMLConverterController @Inject()(val controllerComponents: ControllerCo
 
   def convertRepository(id: String) = Action { implicit request: Request[AnyContent] =>
     logger.info("Requested repository conversion of " + id)
-    val rules = getMappingRulesFromFile("./conf/mappingRules/institutions.shexml")
+    val rules = getMappingRulesFromFile(config.getString("ehri.shexml.converter.mapping.rules.institution"))
     val finalMappingRules = getFinalMappingRules("repository", rules, id)
     handleAnswerWithContentNegotiation(finalMappingRules)
   }
 
   def convertUnit(id: String) = Action { implicit request: Request[AnyContent] =>
     logger.info("Requested unit conversion of " + id)
-    val rules = getMappingRulesFromFile("./conf/mappingRules/units.shexml")
+    val rules = getMappingRulesFromFile(config.getString("ehri.shexml.converter.mapping.rules.unit"))
     val finalMappingRules = getFinalMappingRules("unit", rules, id)
     handleAnswerWithContentNegotiation(finalMappingRules)
   }
