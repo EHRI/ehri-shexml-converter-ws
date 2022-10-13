@@ -29,7 +29,6 @@ def deploy(ctx, clean=False):
     ctx.put(file, remote="/tmp")
     ctx.run(f"mkdir -p {version_dir}")
     ctx.run(f"unzip /tmp/{base} -d {version_dir}")
-    ctx.run(f"mv {version_dir}/{name_no_extension}/* {version_dir}/.")
     symlink_target(ctx, version_dir, target_link)
     restart(ctx)
 

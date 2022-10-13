@@ -3,7 +3,7 @@ organization := "eu.ehri-project"
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, LauncherJarPlugin)
 
 scalaVersion := "2.13.9"
 
@@ -19,3 +19,7 @@ dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.11
 
 // Adds additional packages into conf/routes
 // play.sbt.routes.RoutesKeys.routesImport += "eu.ehri-project.binders._"
+
+// Dist options
+topLevelDirectory := None
+
