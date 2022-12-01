@@ -3,6 +3,7 @@ package controllers
 import com.herminiogarcia.shexml.MappingLauncher
 import com.typesafe.config.Config
 import play.api.Logging
+import play.api.libs.json.Json
 
 import javax.inject._
 import play.api.mvc._
@@ -13,6 +14,10 @@ import scala.util.{Failure, Success, Try}
 
 @Singleton
 class ShExMLConverterController @Inject()(val controllerComponents: ControllerComponents, config: Config) extends BaseController with Logging {
+
+  def main() = Action { implicit request: Request[AnyContent] =>
+    Ok(Json.obj("online" -> true))
+  }
 
   def convert() = Action { implicit request: Request[AnyContent] =>
     val source = request.getQueryString("dataURL")

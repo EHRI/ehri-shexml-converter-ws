@@ -4,6 +4,7 @@
 # ~~~~
 
 # An example controller showing a sample home page
+GET     /                                                 controllers.ShExMLConverterController.main()
 GET     /convert                                          controllers.ShExMLConverterController.convert()
 GET     /convert/repository/:id                           controllers.ShExMLConverterController.convertRepository(id: String)
 GET     /convert/unit/:id                                 controllers.ShExMLConverterController.convertUnit(id: String)
