@@ -9,7 +9,7 @@ scalaVersion := "2.13.9"
 
 libraryDependencies += guice
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
-libraryDependencies += "com.herminiogarcia" %% "shexml" % "0.3.2"
+libraryDependencies += "com.herminiogarcia" %% "shexml" % "0.3.3"
 
 dependencyOverrides += "org.scala-lang.modules" %% "scala-parser-combinators" % "2.1.1"
 dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % "2.11.4"
