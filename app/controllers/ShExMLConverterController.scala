@@ -16,7 +16,8 @@ import scala.util.{Failure, Success, Try}
 class ShExMLConverterController @Inject()(val controllerComponents: ControllerComponents, config: Config) extends BaseController with Logging {
 
   def main() = Action { implicit request: Request[AnyContent] =>
-    Ok(Json.obj("online" -> true))
+    val shexmlVersion = new MappingLauncher().getClass.getPackage.getImplementationVersion
+    Ok(Json.obj("online" -> true, "shexml-version" -> shexmlVersion))
   }
 
   def convert() = Action { implicit request: Request[AnyContent] =>
